@@ -1,31 +1,27 @@
 package com.sinqia.silver.response;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class ErrorResponse<T> extends DefaultResponse {
+public class ErrorResponse extends DefaultResponse {
 
-    private String field;
-    private String solution;
-    private T body;
+    private List<SinqiaError> body;
 
     public ErrorResponse(@JsonProperty("status") Integer status,
             @JsonProperty("code") String code,
             @JsonProperty("message") String message,
-            @JsonProperty("field") String field,
-            @JsonProperty("solution") String solution,
-            @JsonProperty("body") T body) {
+            @JsonProperty("body") List<SinqiaError> body) {
         super(status, code, message);
         this.body = body;
     }
     
     public ErrorResponse(@JsonProperty("status") Integer status,
             @JsonProperty("code") String code,
-            @JsonProperty("message") String message,
-            @JsonProperty("field") String field,
-            @JsonProperty("solution") String solution) {
+            @JsonProperty("message") String message) {
         super(status, code, message);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sinqia.silver.exception.BusinessException;
 import com.sinqia.silver.request.StaticQrCodeRequest;
 import com.sinqia.silver.response.DefaultResponse;
 import com.sinqia.silver.response.ErrorResponse;
@@ -17,7 +18,7 @@ import com.sinqia.silver.response.SuccessResponse;
 import com.sinqia.silver.service.StaticQrCodeService;
 
 @RestController
-@RequestMapping("v1/sinqia")
+@RequestMapping("/v1/sinqia")
 public class StaticQrCodeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticQrCodeController.class);
@@ -36,19 +37,21 @@ public class StaticQrCodeController {
             StaticQrCodeResponse res = new StaticQrCodeResponse();
             res.setGeneratedImage("image ss");
             res.setTextualContent("textual ss");
-            return new ErrorResponse<StaticQrCodeResponse>(400, "1", "erro", "field", "solution", res);
+            return new ErrorResponse(400, "1", "erro");
         }
     }
 
     @PostMapping(path = "/qr-code/static")
     public DefaultResponse staticQrCode(@RequestBody StaticQrCodeRequest request) {
         try {
-            LOGGER.info("POST | v1/sinqia/qr-code/static | Inicializado | staticQrCode |");
-            StaticQrCodeResponse response = staticQrCodeService.generateStaticQrCode();
-            LOGGER.info("POST | v1/sinqia/qr-code/static | Finalizado | staticQrCode |");
-            return new SuccessResponse<StaticQrCodeResponse>(200, "code", "messagem", response);
+            LOGGER.info("POST | /v1/sinqia/qr-code/static | Inicializado | staticQrCode |");
+            StaticQrCodeResponse response = staticQrCodeService.generateStaticQrCode(request);
+            LOGGER.info("POST | /v1/sinqia/qr-code/static | Finalizado | staticQrCode |");
+            return new SuccessResponse<StaticQrCodeResponse>(200, "1", "Código gerado com sucesso", response);
+        } catch (BusinessException e) {
+            return new ErrorResponse(400, "S401", e.getMessage(), e.getErrors());
         } catch (Exception e) {
-            return new ErrorResponse<StaticQrCodeResponse>(400, "1", "erro", "field", "solution");
+            return new ErrorResponse(400, "S402", e.getMessage());
         }
     }
 
