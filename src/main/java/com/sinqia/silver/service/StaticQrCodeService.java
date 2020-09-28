@@ -14,9 +14,9 @@ import com.sinqia.silver.exception.BusinessException;
 import com.sinqia.silver.request.StaticQrCodeRequest;
 import com.sinqia.silver.response.SinqiaError;
 import com.sinqia.silver.response.StaticQrCodeResponse;
-import com.sinqia.silver.util.StringUtils;
 
 import net.glxn.qrgen.javase.QRCode;
+import org.springframework.util.StringUtils;
 
 @Service
 public class StaticQrCodeService extends ServiceBase {

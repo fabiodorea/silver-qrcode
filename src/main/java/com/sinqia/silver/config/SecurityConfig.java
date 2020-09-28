@@ -11,11 +11,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+
+import static org.apache.commons.lang3.BooleanUtils.and;
 
 @Configuration
 @EnableWebSecurity
@@ -49,7 +52,15 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http.authorizeRequests()
-        .antMatchers(HttpMethod.GET, "/api/sinqia/qr-code/static").permitAll()
-        .anyRequest().hasRole("user");
+                .antMatchers("/v1/sinqia/qr-code/static").permitAll()
+                .anyRequest().permitAll();
+        http.csrf().disable();
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        web
+                .ignoring()
+                .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**");
     }
 }
