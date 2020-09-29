@@ -3,7 +3,7 @@ package com.sinqia.silver.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,32 +32,17 @@ public class StaticQrCodeController {
     @Autowired
     private StaticQrCodeService staticQrCodeService;
 
-    @GetMapping(path = "/qr-code/static2")
-    public DefaultResponse staticQrCodeTest(int i) {
-        if (i > 5) {
-            StaticQrCodeResponse res = new StaticQrCodeResponse();
-            res.setGeneratedImage("image er");
-            res.setTextualContent("textual er");
-            return new SuccessResponse<StaticQrCodeResponse>(200, "code", "messagem", res);
-        } else {
-            StaticQrCodeResponse res = new StaticQrCodeResponse();
-            res.setGeneratedImage("image ss");
-            res.setTextualContent("textual ss");
-            return new ErrorResponse(400, "1", "erro");
-        }
-    }
-
     @PostMapping(path = "/qr-code/static")
-    public DefaultResponse staticQrCode(@RequestBody StaticQrCodeRequest request) {
+    public ResponseEntity<DefaultResponse> staticQrCode(@RequestBody StaticQrCodeRequest request) {
         try {
             LOGGER.info("POST | /v1/sinqia/qr-code/static | Inicializado | staticQrCode |");
             StaticQrCodeResponse response = staticQrCodeService.generateStaticQrCode(request);
             LOGGER.info("POST | /v1/sinqia/qr-code/static | Finalizado | staticQrCode |");
-            return new SuccessResponse<StaticQrCodeResponse>(200, "1", "Código gerado com sucesso", response);
+            return ResponseEntity.ok(new SuccessResponse<StaticQrCodeResponse>("1", "Código gerado com sucesso", response));
         } catch (BusinessException e) {
-            return new ErrorResponse(400, "S401", e.getMessage(), e.getErrors());
+            return ResponseEntity.badRequest().body(new ErrorResponse("S401", e.getMessage(), e.getErrors()));
         } catch (Exception e) {
-            return new ErrorResponse(400, "S402", e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse("S402", e.getMessage()));
         }
     }
 

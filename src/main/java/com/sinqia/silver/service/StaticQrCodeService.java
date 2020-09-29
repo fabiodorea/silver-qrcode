@@ -5,7 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.Base64.Encoder;
 
@@ -37,7 +39,8 @@ public class StaticQrCodeService extends ServiceBase {
     }
 
     public StaticQrCodeResponse generateStaticQrCode(StaticQrCodeRequest request) throws Exception {
-        validateRequest(request);
+        List<SinqiaError> errors = new ArrayList<SinqiaError>();
+        validateRequest(request, errors);
         if (errors.size() > 0) {
             throw new BusinessException("Erro ao gerar qr code estatico", errors);
         }
@@ -47,7 +50,7 @@ public class StaticQrCodeService extends ServiceBase {
         StaticQrCodeResponse response = new StaticQrCodeResponse();
 
         String payloadFormatIndicator = "000201";
-        String pointOfInitiationMethod = "010211"; // “11” (QR reutilizável) ou “12” (QR utilizável apenas uma vez
+        String pointOfInitiationMethod = "010212"; // “11” (QR reutilizável) ou “12” (QR utilizável apenas uma vez)
         String merchantAccountInformation = "2644" +
                 "0014br.gov.bcb.pix" +
                 "01" + getSize(request.getKey()) + request.getKey();
@@ -58,6 +61,7 @@ public class StaticQrCodeService extends ServiceBase {
         String merchantName = "59" + getSize(request.getMerchantName()) + request.getMerchantName();
         String merchantCity = "60" + getSize(request.getCity()) + request.getCity();
         String additionalDataField = "62" + getSize(request.getAdicionalInformation()) + request.getAdicionalInformation();
+        //adicionalInformation onde vai?
         String crc16 = "6304DFE3";
 
         String code = payloadFormatIndicator +
@@ -91,7 +95,7 @@ public class StaticQrCodeService extends ServiceBase {
         return String.format("%02d", value.length());
     }
 
-    private void validateRequest(StaticQrCodeRequest request) {
+    private void validateRequest(StaticQrCodeRequest request, List<SinqiaError> errors) {
         if (StringUtils.isEmpty(request.getKey())) {
             errors.add(KEY_ERROR);
         }

@@ -9,11 +9,10 @@ public class SuccessResponse<T> extends DefaultResponse {
 
     private T body;
 
-    public SuccessResponse(@JsonProperty("status") Integer status,
-            @JsonProperty("code") String code,
+    public SuccessResponse(@JsonProperty("code") String code,
             @JsonProperty("message") String message,
             @JsonProperty("body") T body) {
-        super(status, code, message);
+        super(code, message);
         this.body = body;
     }
 

@@ -5,12 +5,10 @@ import lombok.Data;
 @Data
 public class DefaultResponse {
 
-    private Integer status;
     private String code;
     private String message;
 
-    public DefaultResponse(Integer status, String code, String message) {
-        this.status = status;
+    public DefaultResponse(String code, String message) {
         this.code = code;
         this.message = message;
     }
