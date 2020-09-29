@@ -19,13 +19,16 @@ public class StaticQrCodeRequest {
     private String merchantName;
 
     @NotEmpty
-    @Schema(description = "Cidade de realização da ordem de pagamento instantâneoo")
+    @Schema(description = "Cidade de realização da ordem de pagamento instantâneo")
     private String city;
 
+    @Schema(description = "valor financeiro da ordem de pagamento instantâneo")
     private BigDecimal financialValue;
 
+    @Schema(description = "identificador da transação utilizado para conciliação do recebedor")
     private String transactionIdentifier;
 
+    @Schema(description = "informaçãoes adicionais da ordem de pagamento instantâneo")
     private String adicionalInformation;
     
 }
