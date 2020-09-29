@@ -57,6 +57,7 @@ public class StaticQrCodeService extends ServiceBase {
         String countryCode = "5802BR";
         String merchantName = "59" + getSize(request.getMerchantName()) + request.getMerchantName();
         String merchantCity = "60" + getSize(request.getCity()) + request.getCity();
+        String additionalDataField = "62" + getSize(request.getAdicionalInformation()) + request.getAdicionalInformation();
         String crc16 = "6304DFE3";
 
         String code = payloadFormatIndicator +
@@ -69,6 +70,7 @@ public class StaticQrCodeService extends ServiceBase {
                 countryCode +
                 merchantName +
                 merchantCity +
+                additionalDataField +
                 crc16;
         BufferedImage img = generateQRCodeImage(code);
 
