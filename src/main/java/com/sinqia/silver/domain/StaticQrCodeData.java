@@ -17,7 +17,7 @@ public class StaticQrCodeData {
     QrCodeField countryCode = new QrCodeField("58", "Country Code", 2, "BR", null, null, false);
     QrCodeField merchantName = new QrCodeField("59", "Merchant Name", 0, "", null, null, true);
     QrCodeField merchantCity = new QrCodeField("60", "Merchant City", 0, "", null, null, true);
-    QrCodeField aditionalDataField = new QrCodeField("62", "Aditional Data Field", 0, "", 1, 99, true);
+    QrCodeField additionalDataField = new QrCodeField("62", "Aditional Data Field", 0, "", 1, 99, true);
     QrCodeField referenceLabel = new QrCodeField("05", "Reference Label", 0, "", 1, 25, true);
     QrCodeField crc16 = new QrCodeField("63", "Merchant City", 4, "DFE3", null, null, true);
 }

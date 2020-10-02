@@ -3,7 +3,6 @@ package com.sinqia.silver.factory;
 import com.sinqia.silver.domain.QrCodeField;
 import com.sinqia.silver.domain.StaticQrCodeData;
 import com.sinqia.silver.exception.CharacterLimitExceededException;
-import com.sinqia.silver.exception.UnableToGenerateQRCodeImageException;
 import com.sinqia.silver.request.StaticQrCodeRequest;
 import org.apache.logging.log4j.util.Strings;
 
@@ -49,12 +48,28 @@ public class StaticQRCodeBuilderFactory {
                 .append(merchantAccountInfoCalculate(qrCodeData, request))
                 .append(qrCodeData.getMerchantCategoryCode().toString())
                 .append(qrCodeData.getTransactionCurrency().toString())
-                .append(qrCodeData.getTransactionAmount().getSize() > 0 ?  qrCodeData.getTransactionAmount().toString() : "")
+                .append(qrCodeData.getTransactionAmount().getSize() > 0 ?  qrCodeData.getTransactionAmount().toString() : null)
                 .append(qrCodeData.getCountryCode().toString())
                 .append(qrCodeData.getMerchantName().toString())
                 .append(qrCodeData.getMerchantCity().toString())
+                .append(additionalDataFieldCalculate(qrCodeData, request))
                 .append(qrCodeData.getCrc16().toString())
                 .toString();
+    }
+
+    private String additionalDataFieldCalculate(StaticQrCodeData qrCodeData, StaticQrCodeRequest request){
+        QrCodeField additionalDataField = qrCodeData.getAdditionalDataField();
+        QrCodeField referenceLabel = qrCodeData.getReferenceLabel();
+
+        if(!Strings.isEmpty(request.getTransactionIdentifier())){
+            referenceLabel.setValue(request.getTransactionIdentifier());
+            referenceLabel.setSize(request.getTransactionIdentifier().length());
+
+            additionalDataField.setValue(referenceLabel.toString());
+            additionalDataField.setSize(referenceLabel.toString().length());
+            return additionalDataField.toString();
+        }
+        return "";
     }
 
     private String merchantAccountInfoCalculate(StaticQrCodeData qrCodeData, StaticQrCodeRequest request){
@@ -67,7 +82,7 @@ public class StaticQRCodeBuilderFactory {
         key.setSize(request.getKey().length());
 
         merchantInfo.setValue(gui.toString() + key.toString());
-        merchantInfo.setSize(key.getSize() + gui.getSize());
+        merchantInfo.setSize(key.toString().length() + gui.toString().length());
 
         if(!Strings.isEmpty(request.getAdicionalInformation())){
             int validAdditionalInfoLength = 99 - (key.getSize() + gui.getSize() + 8);
@@ -79,7 +94,7 @@ public class StaticQRCodeBuilderFactory {
             additionalInfo.setSize(request.getAdicionalInformation().length());
 
             merchantInfo.setValue(gui.toString() + key.toString() + additionalInfo.toString());
-            merchantInfo.setSize(key.getSize() + gui.getSize() + additionalInfo.getSize());
+            merchantInfo.setSize(key.toString().length() + gui.toString().length() + additionalInfo.toString().length());
         }
 
         return merchantInfo.toString();
