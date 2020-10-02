@@ -1,16 +1,13 @@
 package com.sinqia.silver.response;
 
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 public class DefaultResponse {
 
     private String code;
     private String message;
-
-    public DefaultResponse(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
 
 }
