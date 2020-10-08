@@ -75,12 +75,6 @@
 		    <artifactId>mssql-jdbc</artifactId>
 		    <version>8.4.1.jre8</version>
 		</dependency>
-		<dependency>
-       <groupId>com.microsoft.sqlserver</groupId>
-	       <artifactId>mssql-jdbc_auth</artifactId>
-	       <version>8.4.1.x64</version>
-	       <type>dll</type>
-   </dependency>
 	</dependencies>
 
 	<dependencyManagement>

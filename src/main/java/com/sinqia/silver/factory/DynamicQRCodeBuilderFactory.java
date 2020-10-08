@@ -1,16 +1,25 @@
 package com.sinqia.silver.factory;
 
+import com.sinqia.silver.domain.DynamicQrCodeData;
 import com.sinqia.silver.domain.QrCodeField;
-import com.sinqia.silver.domain.StaticQrCodeData;
-import com.sinqia.silver.exception.CharacterLimitExceededException;
-import com.sinqia.silver.request.DynamicQrCodeRequest;
-import com.sinqia.silver.request.StaticQrCodeRequest;
+import com.sinqia.silver.entity.DynamicQrCode;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 
+@Component
 public class DynamicQRCodeBuilderFactory {
+
+    @Value("${pix.dynamic-json.path}")
+    private String dynamicJsonPath;
+
+    @Value("${pix.host}")
+    private String host;
 
     private static NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
 
@@ -21,50 +30,57 @@ public class DynamicQRCodeBuilderFactory {
         format.setGroupingUsed(false);
     }
 
-    private static final DynamicQRCodeBuilderFactory INSTANCE = new DynamicQRCodeBuilderFactory();
-
-    public static DynamicQRCodeBuilderFactory getInstance() {
-        return INSTANCE;
-    }
-
-    public String buildQRCodeString(DynamicQrCodeRequest request) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public String buildQRCodeString(DynamicQrCode data) {
         StringBuilder code = new StringBuilder();
-        StaticQrCodeData qrCodeData = new StaticQrCodeData();
+        DynamicQrCodeData qrCodeData = new DynamicQrCodeData();
 
-        /*if(request.getFinancialValue() != null){
-            String financialValue = format.format(request.getFinancialValue());
-            qrCodeData.getTransactionAmount().setValue(format.format(request.getFinancialValue()));
-            qrCodeData.getTransactionAmount().setSize(financialValue.length());
-        }*/
+        String financialValue = format.format(data.getFinalValue());
+        qrCodeData.getTransactionAmount().setValue(format.format(data.getFinalValue()));
+        qrCodeData.getTransactionAmount().setSize(financialValue.length());
 
-        qrCodeData.getMerchantCity().setValue(request.getCity());
-        qrCodeData.getMerchantCity().setSize(request.getCity().length());
+        qrCodeData.getMerchantName().setValue(data.getReceiverName());
+        qrCodeData.getMerchantName().setSize(data.getReceiverName().length());
 
-//        qrCodeData.getMerchantName().setValue(request.getMerchantName());
-//        qrCodeData.getMerchantName().setSize(request.getMerchantName().length());
+        qrCodeData.getMerchantCity().setValue(data.getCity());
+        qrCodeData.getMerchantCity().setSize(data.getCity().length());
 
         return code
                 .append(qrCodeData.getPayloadFormatIndicator().toString())
                 .append(qrCodeData.getPointOfInitiationMethod().toString())
-           //     .append(merchantAccountInfoCalculate(qrCodeData, request))
+                .append(merchantAccountInfoCalculate(qrCodeData, data))
                 .append(qrCodeData.getMerchantCategoryCode().toString())
                 .append(qrCodeData.getTransactionCurrency().toString())
                 .append(qrCodeData.getTransactionAmount().getSize() > 0 ?  qrCodeData.getTransactionAmount().toString() : null)
                 .append(qrCodeData.getCountryCode().toString())
                 .append(qrCodeData.getMerchantName().toString())
                 .append(qrCodeData.getMerchantCity().toString())
-             //   .append(additionalDataFieldCalculate(qrCodeData, request))
+                .append(additionalDataFieldCalculate(qrCodeData, data))
                 .append(qrCodeData.getCrc16().toString())
                 .toString();
     }
 
-    private String additionalDataFieldCalculate(StaticQrCodeData qrCodeData, StaticQrCodeRequest request){
+    private String merchantAccountInfoCalculate(DynamicQrCodeData qrCodeData, DynamicQrCode data){
+        QrCodeField merchantInfo = qrCodeData.getMerchantAccountInformation();
+        QrCodeField gui = qrCodeData.getGui();
+        QrCodeField url = qrCodeData.getUrl();
+
+        url.setValue(host + dynamicJsonPath + data.getId());
+        url.setSize(url.getValue().length());
+
+        merchantInfo.setValue(gui.toString() + url.toString());
+        merchantInfo.setSize(gui.toString().length() + url.toString().length());
+
+        return merchantInfo.toString();
+    }
+
+    private String additionalDataFieldCalculate(DynamicQrCodeData qrCodeData, DynamicQrCode data){
         QrCodeField additionalDataField = qrCodeData.getAdditionalDataField();
         QrCodeField referenceLabel = qrCodeData.getReferenceLabel();
 
-        if(!Strings.isEmpty(request.getTransactionIdentifier())){
-            referenceLabel.setValue(request.getTransactionIdentifier());
-            referenceLabel.setSize(request.getTransactionIdentifier().length());
+        if(!Strings.isEmpty(data.getTransactionIdentifier())){
+            referenceLabel.setValue(data.getTransactionIdentifier());
+            referenceLabel.setSize(data.getTransactionIdentifier().length());
 
             additionalDataField.setValue(referenceLabel.toString());
             additionalDataField.setSize(referenceLabel.toString().length());
@@ -72,34 +88,5 @@ public class DynamicQRCodeBuilderFactory {
         }
         return "";
     }
-
-    private String merchantAccountInfoCalculate(StaticQrCodeData qrCodeData, StaticQrCodeRequest request){
-        QrCodeField merchantInfo = qrCodeData.getMerchantAccountInformation();
-        QrCodeField gui = qrCodeData.getGui();
-        QrCodeField key = qrCodeData.getKey();
-        QrCodeField additionalInfo = qrCodeData.getAdditionalInfo();
-
-        key.setValue(request.getKey());
-        key.setSize(request.getKey().length());
-
-        merchantInfo.setValue(gui.toString() + key.toString());
-        merchantInfo.setSize(key.toString().length() + gui.toString().length());
-
-        if(!Strings.isEmpty(request.getAdicionalInformation())){
-            int validAdditionalInfoLength = 99 - (key.getSize() + gui.getSize() + 8);
-
-            if(request.getAdicionalInformation().length() > validAdditionalInfoLength)
-                throw new CharacterLimitExceededException("O campo 'informação adicional' ultrapassou o limite permitido.");
-
-            additionalInfo.setValue(request.getAdicionalInformation());
-            additionalInfo.setSize(request.getAdicionalInformation().length());
-
-            merchantInfo.setValue(gui.toString() + key.toString() + additionalInfo.toString());
-            merchantInfo.setSize(key.toString().length() + gui.toString().length() + additionalInfo.toString().length());
-        }
-
-        return merchantInfo.toString();
-    }
-
 
 }

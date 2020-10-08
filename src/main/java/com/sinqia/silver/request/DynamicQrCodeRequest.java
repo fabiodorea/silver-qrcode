@@ -1,18 +1,20 @@
 package com.sinqia.silver.request;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -33,13 +35,16 @@ public class DynamicQrCodeRequest implements Serializable {
     private String city;
     
     @NotEmpty(message = "Campo 'transactionIdentifier' é obritagório")
+    @Size(max = 35, message =  "Campo 'transactionIdentifier' não pode eceder o tamanho máximo de 35 caracteres.")
     @Schema(description = "identificador da transação utilizado para conciliação do recebedor")
     private String transactionIdentifier;
     
     private Calendar calendar;
     
-    private Deptor deptor;
-    
+    private Debtor debtor;
+
+    private Receiver receiver;
+
     private Value value;
     
     private String payerRequest;
@@ -49,12 +54,20 @@ public class DynamicQrCodeRequest implements Serializable {
     @Data
     public static class Calendar {
         private Integer expiracy;
-        private String due;
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate due;
         private boolean receivableAfterMaturity;
     }
     
     @Data
-    public static class Deptor {
+    public static class Debtor {
+        private String cpf;
+        private String cnpj;
+        private String name;
+    }
+
+    @Data
+    public static class Receiver {
         private String cpf;
         private String cnpj;
         private String name;

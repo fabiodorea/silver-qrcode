@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 @Data
 @NoArgsConstructor
@@ -27,10 +30,13 @@ import lombok.NoArgsConstructor;
 public class DynamicQrCode implements Serializable {
 
     private static final long serialVersionUID = 6471172231353601799L;
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    @Type(type = "uuid-char")
+    private UUID id;
     
     @Column(name = "tex_chave", length = 77, nullable = false)
     private String key;
@@ -38,42 +44,45 @@ public class DynamicQrCode implements Serializable {
     @Column(name = "tex_cidade", length = 15, nullable = false)
     private String city;
     
-    @Column(name = "id_transacao", length = 35, nullable = false)
+    @Column(name = "id_transacao", length = 36, nullable = false)
     private String transactionIdentifier;
     
-    @Column(name = "qtd_expiracao", nullable = true)
+    @Column(name = "qtd_expiracao")
     private Integer expiracyQuantity;
     
-    @Column(name = "dat_vencimento", nullable = true)
+    @Column(name = "dat_vencimento")
     private LocalDate dueDate;
     
-    @Column(name = "flg_recebivel_apos_vencimento", nullable = true)
+    @Column(name = "flg_recebivel_apos_vencimento")
     private boolean receivableAfterMaturity;
     
-    @Column(name = "dev_cpf", length = 11, nullable = true)
+    @Column(name = "dev_cpf", length = 11)
     private String cpf;
 
-    @Column(name = "dev_cnpj", length = 14, nullable = true)
+    @Column(name = "dev_cnpj", length = 14)
     private String cnpj;
     
-    @Column(name = "dev_nome", length = 200, nullable = true)
+    @Column(name = "dev_nome", length = 200)
     private String name;
+
+    @Column(name = "rec_nome", length = 200)
+    private String receiverName;
     
     @Column(name = "vr_original", nullable = false)
-    private BigDecimal original;
+    private BigDecimal originalValue;
     
     @Column(name = "vr_final", nullable = false)
-    private BigDecimal finale;
+    private BigDecimal finalValue;
     
-    @Column(name = "vr_juros", nullable = true)
-    private BigDecimal interest;
+    @Column(name = "vr_juros")
+    private BigDecimal interestValue;
     
-    @Column(name = "vr_multa", nullable = true)
-    private BigDecimal penalty;
+    @Column(name = "vr_multa")
+    private BigDecimal penaltyValue;
     
-    @Column(name = "vr_desconto", nullable = true)
-    private BigDecimal discount;
-    
+    @Column(name = "vr_desconto")
+    private BigDecimal discountValue;
+
     @Column(name = "flg_permite_alteracao", nullable = true)
     private boolean allowsChange;
     

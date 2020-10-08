@@ -2,7 +2,8 @@ package com.sinqia.silver.enums;
 
 public enum SuccessCode {
 
-    QR_CODE_GENERATED("1", "QRCode gerado com sucesso");
+    QR_CODE_GENERATED("1", "QRCode gerado com sucesso"),
+    PAYLOAD_GENERATED("2", "Payload gerado com sucesso");
 
     private String code;
     private String message;
