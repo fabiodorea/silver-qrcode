@@ -35,7 +35,7 @@ public class DynamicQrCodeRequest implements Serializable {
     private String city;
     
     @NotEmpty(message = "Campo 'transactionIdentifier' é obritagório")
-    @Size(max = 35, message =  "Campo 'transactionIdentifier' não pode eceder o tamanho máximo de 35 caracteres.")
+    @Size(max = 35, message =  "Campo 'transactionIdentifier' não pode exceder o tamanho máximo de 35 caracteres.")
     @Schema(description = "identificador da transação utilizado para conciliação do recebedor")
     private String transactionIdentifier;
     
